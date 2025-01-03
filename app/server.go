@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"io"
 	"net"
 	"os"
 
@@ -26,17 +25,13 @@ func main() {
 	defer conn.Close()
 
 	for {
-		buf, err := io.ReadAll(conn)
+		buf := make([]byte, 1024)
+		_, err := conn.Read(buf)
 		if err != nil {
 			fmt.Println("Error reading: ", err.Error())
 			os.Exit(1)
 		}
-		if len(buf) == 0 {
-			fmt.Println("Connection closed by client")
-			break
-		}
-
-		request, err := internal.DecodeRequest(buf)
+		request, err := internal.DecodeRequest(buf[:])
 		if err != nil {
 			fmt.Println("Error decoding request: ", err.Error())
 			os.Exit(1)
