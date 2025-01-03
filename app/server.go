@@ -48,7 +48,7 @@ func main() {
 		os.Exit(1)
 	}
 	response := KafkaResponse{
-		Size: 10,
+		Size: 0,
 		Headers: Headers{
 			CorrelatioId: 7,
 		},
