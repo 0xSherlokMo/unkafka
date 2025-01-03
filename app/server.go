@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/codecrafters-io/kafka-starter-go/internal"
+	"github.com/codecrafters-io/kafka-starter-go/internal/response"
 )
 
 func main() {
@@ -37,9 +38,9 @@ func main() {
 			os.Exit(1)
 		}
 
-		response := internal.KafkaResponse{
+		response := response.Default{
 			Size: 10,
-			Headers: internal.ResponseHeaders{
+			Headers: response.Headers{
 				CorrelatioId: uint32(request.CorrelationID),
 			},
 		}

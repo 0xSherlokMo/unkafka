@@ -1,4 +1,4 @@
-package internal
+package response
 
 import (
 	"bytes"
@@ -7,16 +7,17 @@ import (
 	"os"
 )
 
-type ResponseHeaders struct {
+type Headers struct {
 	CorrelatioId uint32
+	ErrorCode    int16
 }
 
-type KafkaResponse struct {
+type Default struct {
 	Size    uint32
-	Headers ResponseHeaders
+	Headers Headers
 }
 
-func (k *KafkaResponse) Encode() []byte {
+func (k *Default) Encode() []byte {
 	var buffer bytes.Buffer
 	err := binary.Write(&buffer, binary.BigEndian, k.Size)
 	if err != nil {
