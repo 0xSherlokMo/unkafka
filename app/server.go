@@ -1,37 +1,13 @@
 package main
 
 import (
-	"bytes"
-	"encoding/binary"
 	"fmt"
+	"io"
 	"net"
 	"os"
+
+	"github.com/codecrafters-io/kafka-starter-go/internal"
 )
-
-type Headers struct {
-	CorrelatioId uint32
-}
-
-type KafkaResponse struct {
-	Size    uint32
-	Headers Headers
-}
-
-func (k *KafkaResponse) Encode() []byte {
-	var buffer bytes.Buffer
-	err := binary.Write(&buffer, binary.BigEndian, k.Size)
-	if err != nil {
-		fmt.Println("Error encoding size: ", err.Error())
-		os.Exit(1)
-	}
-	err = binary.Write(&buffer, binary.BigEndian, k.Headers.CorrelatioId)
-	if err != nil {
-		fmt.Println("Error encoding correlation id: ", err.Error())
-		os.Exit(1)
-	}
-
-	return buffer.Bytes()
-}
 
 func main() {
 	// You can use print statements as follows for debugging, they'll be visible when running tests.
@@ -48,17 +24,35 @@ func main() {
 		os.Exit(1)
 	}
 	defer conn.Close()
-	response := KafkaResponse{
-		Size: 0,
-		Headers: Headers{
-			CorrelatioId: 7,
-		},
-	}
 
-	_, err = conn.Write(response.Encode())
-	if err != nil {
-		fmt.Println("Error writing response: ", err.Error())
-		os.Exit(1)
-	}
+	for {
+		buf, err := io.ReadAll(conn)
+		if err != nil {
+			fmt.Println("Error reading: ", err.Error())
+			os.Exit(1)
+		}
+		if len(buf) == 0 {
+			fmt.Println("Connection closed by client")
+			break
+		}
 
+		request, err := internal.DecodeRequest(buf)
+		if err != nil {
+			fmt.Println("Error decoding request: ", err.Error())
+			os.Exit(1)
+		}
+
+		response := internal.KafkaResponse{
+			Size: 10,
+			Headers: internal.ResponseHeaders{
+				CorrelatioId: uint32(request.CorrelationID),
+			},
+		}
+
+		_, err = conn.Write(response.Encode())
+		if err != nil {
+			fmt.Println("Error writing response: ", err.Error())
+			os.Exit(1)
+		}
+	}
 }
