@@ -38,10 +38,16 @@ func main() {
 			os.Exit(1)
 		}
 
+		errorCode := response.NO_ERROR
+		if request.RequestAPIVersion <= 0 || request.RequestAPIVersion > 4 {
+			errorCode = response.ERROR_UNSUPPORTED_VERSION
+		}
+
 		response := response.Default{
 			Size: 10,
 			Headers: response.Headers{
 				CorrelatioId: uint32(request.CorrelationID),
+				ErrorCode:    errorCode,
 			},
 		}
 

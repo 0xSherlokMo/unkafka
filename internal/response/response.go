@@ -29,6 +29,11 @@ func (k *Default) Encode() []byte {
 		fmt.Println("Error encoding correlation id: ", err.Error())
 		os.Exit(1)
 	}
+	err = binary.Write(&buffer, binary.BigEndian, k.Headers.ErrorCode)
+	if err != nil {
+		fmt.Println("Error encoding error code: ", err.Error())
+		os.Exit(1)
+	}
 
 	return buffer.Bytes()
 }
