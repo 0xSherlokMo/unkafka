@@ -47,6 +47,7 @@ func main() {
 		fmt.Println("Error accepting connection: ", err.Error())
 		os.Exit(1)
 	}
+	defer conn.Close()
 	response := KafkaResponse{
 		Size: 0,
 		Headers: Headers{
